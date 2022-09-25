@@ -82,7 +82,7 @@ The following items should be installed in your system:
   * IntelliJ IDEA
   * [VS Code](https://code.visualstudio.com)
 
-### Steps:
+### Steps :
 
 1) On the command line
     ```
