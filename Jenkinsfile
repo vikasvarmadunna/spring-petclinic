@@ -1,7 +1,7 @@
 pipeline {
     agent any
     parameters {
-        string(name: 'MAVEN_GOAL', defaultValue: 'clean package sonar:sonar', description: 'maven goal')
+        string(name: 'MAVEN_GOAL', defaultValue: 'clean package ', description: 'maven goal')
     }
     triggers {
         
@@ -29,7 +29,7 @@ pipeline {
         stage('Build the Code') {
             steps {
                 withSonarQubeEnv('SONAR_CLOUD') {
-                    sh script: 'mvn clean package sonar:sonar'
+                    sh script: "mvn clean package sonar:sonar"
                 }
             }
         }
