@@ -1,73 +1,57 @@
 pipeline {
     agent any
-    options { 
-        timeout(time: 1, unit: 'HOURS')
+    parameters {
+        string(name: 'MAVEN_GOAL', defaultValue: 'clean package sonar:sonar', description: 'maven goal')
     }
     triggers {
-        cron('0 * * * *')
+        
+        pollSCM('* * * * *')
     }
-     stages {
-        stage('Source Code') {
+    stages {
+        stage('vcs') {
             steps {
-                git url: 'https://github.com/vikasvarmadunna/spring-petclinic.git', 
-                branch: 'google'
+                git branch: "google", url: 'https://github.com/spring-projects/spring-petclinic.git'
             }
             
         }
-        stage('Artifactory-Configuration') {
+         stage ('Artifactory configuration') {
             steps {
-                rtMavenDeployer (
-                    id: 'spc-deployer',
-                    serverId: 'jfrog',
-                    releaseRepo: 'nevergiverup-libs-release-local',
-                    snapshotRepo: 'nevergiveup-libs-snapshot-local',
-
-                )
-            }
-        }
-        stage('Build the Code and sonarqube-analysis') {
-            steps {
-                 withSonarQubeEnv('SONAR_CLOUD') {
-                    sh script: "mvn ${params.GOAL} sonar:sonar"
-                }
-                rtMavenRun (
-                    // Tool name from Jenkins configuration.
-                    tool: 'mvn-3.6.3',
-                    pom: 'pom.xml',
-                    goals: 'clean install sonar:sonar',
-                    // Maven options.
-                    deployerId: 'spc-deployer',
-                )
                 
-                // stash name: 'spc-build-jar', includes: 'target/*.jar'
+                rtMavenDeployer (
+                    id: "MAVEN_DEPLOYER",
+                    serverId: "jfrog",
+                    releaseRepo: 'nevergiveup-libs-release-local',
+                    snapshotRepo: 'nevergiveup-libs-snapshot-local'
+                )
+
             }
         }
-      //  stage('reporting') {
-        //    steps {
-           //     junit testResults: 'target/surefire-reports/*.xml'
-         //   }
-        // }
-     //   stage("Quality Gate") {
-       //      steps {
-         //      timeout(time: 1, unit: 'HOURS') {
-           //      waitForQualityGate abortPipeline: true
-             //  }
-             // }
-            // }
-        
-   // }
-    // post {
-    //     success {
-    //         // send the success email
-    //         echo "Success"
-    //         mail bcc: '', body: "BUILD URL: ${BUILD_URL} TEST RESULTS ${RUN_TESTS_DISPLAY_URL} ", cc: '', from: 'devops@qtdevops.com', replyTo: '', 
-    //             subject: "${JOB_BASE_NAME}: Build ${BUILD_ID} Succeded", to: 'qtdevops@gmail.com'
-    //     }
-    //     unsuccessful {
-    //         //send the unsuccess email
-    //         mail bcc: '', body: "BUILD URL: ${BUILD_URL} TEST RESULTS ${RUN_TESTS_DISPLAY_URL} ", cc: '', from: 'devops@qtdevops.com', replyTo: '', 
-    //             subject: "${JOB_BASE_NAME}: Build ${BUILD_ID} Failed", to: 'qtdevops@gmail.com'
-    //     }
-     }
-}
+        stage('Build the Code') {
+            steps {
+                withSonarQubeEnv('SONAR_CLOUD') {
+                    sh script: 'mvn clean package sonar:sonar'
+                }
+            }
+        }
 
+        //stage("Quality Gate") {
+        //    steps {
+        //      timeout(time: 1, unit: 'HOURS') {
+        //        waitForQualityGate abortPipeline: true
+        //      }
+        //    }
+        //  }
+
+          stage ('Exec Maven') {
+            steps {
+                rtMavenRun (
+                    tool: 'mvn-3.6.3', // Tool name from Jenkins configuration
+                    pom: 'pom.xml',
+                    goals: 'clean install',
+                    deployerId: "MAVEN_DEPLOYER"
+                )
+            }
+        }
+        
+    }
+}
