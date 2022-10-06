@@ -42,20 +42,20 @@ pipeline {
                 // stash name: 'spc-build-jar', includes: 'target/*.jar'
             }
         }
-        stage('reporting') {
-            steps {
-                junit testResults: 'target/surefire-reports/*.xml'
-            }
-        }
-        stage("Quality Gate") {
-             steps {
-               timeout(time: 1, unit: 'HOURS') {
-                 waitForQualityGate abortPipeline: true
-               }
-             }
-           }
+      //  stage('reporting') {
+        //    steps {
+           //     junit testResults: 'target/surefire-reports/*.xml'
+         //   }
+        // }
+     //   stage("Quality Gate") {
+       //      steps {
+         //      timeout(time: 1, unit: 'HOURS') {
+           //      waitForQualityGate abortPipeline: true
+             //  }
+             // }
+            // }
         
-    }
+   // }
     // post {
     //     success {
     //         // send the success email
