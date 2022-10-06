@@ -1,54 +1,37 @@
 pipeline {
     agent any
+    options { 
+        timeout(time: 1, unit: 'HOURS')
+        retry(2) 
+    }
     triggers {
-        
-        pollSCM('* * * * *')
+        cron('0 * * * *')
+    }
+    parameters {
+        choice(name: 'GOAL', choices: ['compile', 'package', 'clean package'])
     }
     stages {
-        stage('vcs') {
+        stage('Source Code') {
             steps {
-                git branch: "google", url: 'https://github.com/vikasvarmadunna/spring-petclinic.git'
+                git url: 'https://github.com/vikasvarmadunna/spring-petclinic.git', 
+                branch: 'google'
             }
-            
-        }
-         stage ('Artifactory configuration') {
-            steps {
-                
-                rtMavenDeployer (
-                    id: "MAVEN_DEPLOYER",
-                    serverId: "jfrog",
-                    releaseRepo: 'nevergiveup-libs-release-local',
-                    snapshotRepo: 'nevergiveup-libs-snapshot-local'
-                )
 
-            }
         }
-        stage('Build the Code') {
+        stage('Build the Code and sonarqube-analysis') {
             steps {
                 withSonarQubeEnv('SONAR_SELF_HOSTED') {
-                    sh script: 'mvn  sonar:sonar'
+                    sh script: "mvn ${params.GOAL} sonar:sonar"
                 }
+
             }
         }
-
-        //stage("Quality Gate") {
-        //    steps {
-        //      timeout(time: 1, unit: 'HOURS') {
-        //        waitForQualityGate abortPipeline: true
-        //      }
-        //    }
-        //  }
-
-          stage ('Exec Maven') {
+        stage('reporting') {
             steps {
-                rtMavenRun (
-                    tool: 'mvn-3.6.3', // Tool name from Jenkins configuration
-                    pom: 'pom.xml',
-                    goals: 'clean install',
-                    deployerId: "MAVEN_DEPLOYER"
-                )
+                junit testResults: 'target/surefire-reports/*.xml'
             }
         }
-        
+
     }
+
 }
