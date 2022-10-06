@@ -34,7 +34,7 @@ pipeline {
                     // Tool name from Jenkins configuration.
                     tool: 'mvn-3.6.3',
                     pom: 'pom.xml',
-                    goals: 'clean install',
+                    goals: 'clean install sonar:sonar',
                     // Maven options.
                     deployerId: 'spc-deployer',
                 )
