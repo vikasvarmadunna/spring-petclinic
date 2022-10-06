@@ -1,8 +1,5 @@
 pipeline {
     agent any
-    parameters {
-        string(name: 'MAVEN_GOAL', defaultValue: 'clean install ', description: 'maven goal')
-    }
     triggers {
         
         pollSCM('* * * * *')
@@ -29,7 +26,7 @@ pipeline {
         stage('Build the Code') {
             steps {
                 withSonarQubeEnv('SONAR_SELF_HOSTED') {
-                    sh script: 'mvn clean package sonar:sonar'
+                    sh script: 'mvn  sonar:sonar'
                 }
             }
         }
