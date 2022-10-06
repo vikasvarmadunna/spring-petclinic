@@ -29,7 +29,7 @@ pipeline {
             steps {
                  withSonarQubeEnv('SONAR_CLOUD') {
                     sh script: "mvn ${params.GOAL} sonar:sonar"
-                // }
+                }
                 rtMavenRun (
                     // Tool name from Jenkins configuration.
                     tool: 'mvn-3.6.3',
