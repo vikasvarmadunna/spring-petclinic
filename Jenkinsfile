@@ -28,7 +28,7 @@ pipeline {
         }
         stage('Build the Code') {
             steps {
-                withSonarQubeEnv('SONAR_CLOUD') {
+                withSonarQubeEnv('SONAR_SELF_HOSTED') {
                     sh script: "mvn clean package sonar:sonar"
                 }
             }
