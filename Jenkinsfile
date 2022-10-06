@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'jdk-11-mvn' }
+    agent any
     options { 
         timeout(time: 1, unit: 'HOURS')
     }
