@@ -27,8 +27,8 @@ pipeline {
         }
         stage('Build the Code and sonarqube-analysis') {
             steps {
-                // withSonarQubeEnv('SONAR_LATEST') {
-                //     sh script: "mvn ${params.GOAL} sonar:sonar"
+                 withSonarQubeEnv('SONAR_CLOUD') {
+                    sh script: "mvn ${params.GOAL} sonar:sonar"
                 // }
                 rtMavenRun (
                     // Tool name from Jenkins configuration.
@@ -47,13 +47,13 @@ pipeline {
                 junit testResults: 'target/surefire-reports/*.xml'
             }
         }
-        // stage("Quality Gate") {
-        //     steps {
-        //       timeout(time: 1, unit: 'HOURS') {
-        //         waitForQualityGate abortPipeline: true
-        //       }
-        //     }
-        //   }
+        stage("Quality Gate") {
+             steps {
+               timeout(time: 1, unit: 'HOURS') {
+                 waitForQualityGate abortPipeline: true
+               }
+             }
+           }
         
     }
     // post {
