@@ -6,8 +6,7 @@
 trigger:
 - main
 
-pool:
-  vmImage: ubuntu-aws
+pool: khajaagent
 
 steps:
 - task: Maven@3
